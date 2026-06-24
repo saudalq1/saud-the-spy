@@ -576,7 +576,7 @@ export default function Room() {
                       className={`relative flex flex-col justify-end rounded-xl cursor-pointer overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-lg min-h-[80px] sm:min-h-[100px] ${showIdentity ? revealBorderClass : 'bg-[#FBE3CC] border-2 border-[#EAD2B8]'} ${card.isRevealed ? 'opacity-40' : ''}`}
                     >
                       {card.susList && card.susList.length > 0 && (
-                        <div className="absolute top-7 left-1 flex flex-col gap-0.5 z-10 p-0.5 max-w-[55%] pointer-events-none">
+                        <div className="absolute top-1 left-1 flex flex-col gap-0.5 z-10 p-0.5 max-w-[65%] pointer-events-none">
                           {card.susList.map((susName, i) => (
                             <span
                               key={i}
@@ -603,7 +603,7 @@ export default function Room() {
                             e.stopPropagation();
                             socket.emit('reveal-card', { roomId, cardIndex: idx });
                           }}
-                          className="absolute top-1 right-1 z-20 bg-green-500 hover:bg-green-400 text-white font-black text-[8px] sm:text-[9px] px-2 py-1 rounded shadow-md transform transition hover:scale-110 active:scale-95 border border-green-300 flex items-center gap-1"
+                          className="absolute top-1 right-1 z-20 bg-green-500 hover:bg-green-400 text-white font-black text-[8px] sm:text-[9px] px-2 py-1 rounded-full shadow-md transform transition hover:scale-110 active:scale-95 border border-green-300 flex items-center gap-1"
                         >
                           <span>✅</span>
                           <span>SUBMIT</span>
@@ -617,7 +617,7 @@ export default function Room() {
                             e.stopPropagation();
                             socket.emit('assign-word', { roomId, cardIndex: idx });
                           }}
-                          className="absolute top-1 right-1 z-30 bg-indigo-500 hover:bg-indigo-400 text-white font-black text-[8px] sm:text-[9px] px-2 py-1 rounded shadow-md transform transition hover:scale-110 active:scale-95 border border-indigo-300 flex items-center gap-1"
+                          className={`absolute top-1 right-1 z-30 text-white font-black text-[8px] sm:text-[9px] px-2 py-1 rounded-full shadow-md transform transition hover:scale-110 active:scale-95 border flex items-center gap-1 ${card.type === 'red' ? 'bg-rose-500 hover:bg-rose-400 border-rose-300' : 'bg-cyan-500 hover:bg-cyan-400 border-cyan-300'}`}
                         >
                           <span>🎯</span>
                           <span>ASSIGN</span>
@@ -635,8 +635,8 @@ export default function Room() {
                         <>
                           <div className="flex-grow"></div>
                           <div className="h-[2px] bg-[#A58265] mx-1"></div>
-                          <div className="bg-[#B08A6C] h-[50%] min-h-[42px] flex items-center justify-center px-1.5 mb-1 mx-1 rounded-b border border-[#9A785D]">
-                            <span className="text-[9px] sm:text-[11px] md:text-xs font-black tracking-wide text-white uppercase text-center break-all leading-tight drop-shadow-sm">
+                          <div className="bg-[#B08A6C] h-1/3 min-h-[28px] flex items-center justify-center px-1 mb-1 mx-1 rounded-b border border-[#9A785D] overflow-hidden">
+                            <span className="text-[8px] sm:text-[10px] md:text-[11px] font-black tracking-wide text-white uppercase text-center break-words leading-none drop-shadow-sm w-full line-clamp-2">
                               {card.prompt}
                             </span>
                           </div>
