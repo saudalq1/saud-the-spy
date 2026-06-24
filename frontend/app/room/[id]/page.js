@@ -27,6 +27,7 @@ export default function Room() {
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentColor, setCurrentColor] = useState('#00E5FF'); // Electric blue by default
   const [lineWidth, setLineWidth] = useState(4);
+  const [activeTool, setActiveTool] = useState('brush');
 
   // Dev tools state
   const [showSpymasterOverlay, setShowSpymasterOverlay] = useState(false);
@@ -102,11 +103,15 @@ export default function Room() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
 
     const ctx = canvas.getContext('2d');
-    ctx.strokeStyle = currentColor;
+    ctx.strokeStyle = activeTool === 'eraser' ? '#020617' : currentColor;
     ctx.lineWidth = lineWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -120,8 +125,12 @@ export default function Room() {
     if (!isDrawing) return;
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX || (e.touches && e.touches[0].clientX)) - rect.left;
-    const y = (e.clientY || (e.touches && e.touches[0].clientY)) - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+    const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
 
     const ctx = canvas.getContext('2d');
     ctx.lineTo(x, y);
@@ -454,15 +463,57 @@ export default function Room() {
 
                 {/* Spymaster Drawing Form */}
                 {localPlayer?.isSpymaster && gameState.turn === localPlayer.team && gameState.turnPhase === 'drawing' && (
-                  <div className="flex flex-col gap-2 bg-slate-950 p-2 rounded-2xl border border-slate-850">
-                    <div className="text-[10px] text-amber-400 font-bold uppercase text-center tracking-widest">
+                  <div className="flex flex-col gap-2 bg-slate-950 p-2 sm:p-3 rounded-2xl border border-slate-850">
+                    <div className="text-[10px] sm:text-xs text-amber-400 font-bold uppercase text-center tracking-widest">
                       DRAW THIS: <span className="text-white">{gameState.grid[gameState.assignedCardIndex].prompt}</span>
                     </div>
-                    <div className="relative border-2 border-slate-800 rounded overflow-hidden">
+                    
+                    {/* Toolbar */}
+                    <div className="flex flex-wrap items-center gap-2 justify-center">
+                      <div className="flex gap-1">
+                        {['#00E5FF', '#FF4A4A', '#39FF14', '#FFD700', '#FFFFFF'].map(c => (
+                          <button 
+                            key={c} 
+                            onClick={() => { setCurrentColor(c); setActiveTool('brush'); }}
+                            className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 ${currentColor === c && activeTool === 'brush' ? 'border-white scale-110' : 'border-transparent'}`}
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex gap-1 border-l border-slate-800 pl-2">
+                        <button 
+                          onClick={() => setActiveTool('eraser')} 
+                          className={`text-[10px] sm:text-xs px-2 py-1 rounded font-bold transition ${activeTool === 'eraser' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}
+                        >
+                          Eraser
+                        </button>
+                        <button 
+                          onClick={() => {
+                            const ctx = canvasRef.current.getContext('2d');
+                            ctx.fillStyle = currentColor;
+                            ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                          }} 
+                          className="text-[10px] sm:text-xs px-2 py-1 rounded font-bold bg-slate-800 text-slate-300 hover:bg-slate-700 transition"
+                        >
+                          Fill BG
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-1 border-l border-slate-800 pl-2">
+                        <input 
+                          type="range" 
+                          min="1" max="20" 
+                          value={lineWidth} 
+                          onChange={(e) => setLineWidth(Number(e.target.value))}
+                          className="w-16 sm:w-20"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="relative border-2 border-slate-800 rounded overflow-hidden flex justify-center bg-slate-900">
                       <canvas
                         ref={canvasRef}
-                        width={200}
-                        height={120}
+                        width={300}
+                        height={180}
                         onMouseDown={startDrawing}
                         onMouseMove={draw}
                         onMouseUp={stopDrawing}
@@ -470,18 +521,18 @@ export default function Room() {
                         onTouchStart={startDrawing}
                         onTouchMove={draw}
                         onTouchEnd={stopDrawing}
-                        className="bg-[#020617] cursor-crosshair w-[200px] h-[120px] block"
+                        className="bg-[#020617] cursor-crosshair w-full max-w-[300px] h-auto aspect-[5/3] block touch-none"
                       />
                     </div>
                     <div className="flex justify-between items-center px-1">
-                      <button onClick={clearCanvas} className="text-[10px] font-bold text-rose-400 hover:text-rose-300">Clear</button>
+                      <button onClick={clearCanvas} className="text-[10px] font-bold text-rose-400 hover:text-rose-300">Clear All</button>
                     </div>
                     <button
                       onClick={() => {
                         const dataUrl = canvasRef.current.toDataURL();
                         socket.emit('submit-clue', { roomId, clue: dataUrl });
                       }}
-                      className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black py-1.5 rounded-lg text-[10px] shadow-[0_2px_8px_rgba(16,185,129,0.4)] transition hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wider"
+                      className="bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-black py-2 rounded-lg text-xs sm:text-sm shadow-[0_2px_8px_rgba(16,185,129,0.4)] transition hover:scale-[1.02] active:scale-[0.98] uppercase tracking-wider"
                     >
                       Broadcast
                     </button>
@@ -522,7 +573,7 @@ export default function Room() {
                     <div
                       key={card.id}
                       onClick={() => handleCardClick(idx, card)}
-                      className={`relative flex flex-col justify-end rounded-xl cursor-pointer overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-lg ${showIdentity ? revealBorderClass : 'bg-[#FBE3CC] border-2 border-[#EAD2B8]'} ${card.isRevealed ? 'opacity-40' : ''}`}
+                      className={`relative flex flex-col justify-end rounded-xl cursor-pointer overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-lg min-h-[80px] sm:min-h-[100px] ${showIdentity ? revealBorderClass : 'bg-[#FBE3CC] border-2 border-[#EAD2B8]'} ${card.isRevealed ? 'opacity-40' : ''}`}
                     >
                       {card.susList && card.susList.length > 0 && (
                         <div className="absolute top-7 left-1 flex flex-col gap-0.5 z-10 p-0.5 max-w-[55%] pointer-events-none">
