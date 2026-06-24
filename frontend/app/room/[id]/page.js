@@ -434,8 +434,8 @@ export default function Room() {
             {/* Center: Game Board */}
             <div className="flex-grow flex flex-col space-y-4">
               {/* Clue Broadcast Console */}
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-3 flex justify-between items-center shadow-lg">
-                <div className="flex flex-col px-2 flex-grow">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-3 flex flex-col md:flex-row justify-between items-center gap-3 shadow-lg w-full">
+                <div className="flex flex-col px-2 flex-grow w-full md:w-auto text-center md:text-left">
                   <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest leading-tight">
                     {gameState.turnPhase === 'assigning' ? 'AWAITING TARGET ASSIGNMENT' : gameState.turnPhase === 'drawing' ? 'CLUE DRAWING IN PROGRESS' : 'ACTIVE CLUE PAYLOAD'}
                   </span>
@@ -576,12 +576,13 @@ export default function Room() {
                       className={`relative flex flex-col justify-end rounded-xl cursor-pointer overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-lg min-h-[80px] sm:min-h-[100px] ${showIdentity ? revealBorderClass : 'bg-[#FBE3CC] border-2 border-[#EAD2B8]'} ${card.isRevealed ? 'opacity-40' : ''}`}
                     >
                       {card.susList && card.susList.length > 0 && (
-                        <div className="absolute top-1 left-1 flex flex-col gap-0.5 z-10 p-0.5 max-w-[65%] pointer-events-none">
+                        <div className="absolute top-1 left-1 grid grid-cols-2 gap-0.5 z-10 p-0.5 max-w-[80%] pointer-events-none">
                           {card.susList.map((susName, i) => (
                             <span
                               key={i}
-                              className="bg-yellow-500 text-slate-950 px-0.5 py-px rounded font-black uppercase shadow-sm leading-none"
+                              className="bg-yellow-500 text-slate-950 px-1 py-px rounded font-black uppercase shadow-sm leading-none truncate text-center"
                               style={{ fontSize: card.susList.length > 2 ? '6px' : '7px' }}
+                              title={susName}
                             >
                               {susName} 🔍
                             </span>
@@ -603,10 +604,9 @@ export default function Room() {
                             e.stopPropagation();
                             socket.emit('reveal-card', { roomId, cardIndex: idx });
                           }}
-                          className="absolute top-1 right-1 z-20 bg-green-500 hover:bg-green-400 text-white font-black text-[8px] sm:text-[9px] px-2 py-1 rounded-full shadow-md transform transition hover:scale-110 active:scale-95 border border-green-300 flex items-center gap-1"
+                          className="absolute top-1 right-1 z-20 bg-green-500 hover:bg-green-400 text-white font-black text-xs p-1.5 rounded-full shadow-md transform transition hover:scale-110 active:scale-95 border border-green-300 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7"
                         >
-                          <span>✅</span>
-                          <span>SUBMIT</span>
+                          ✅
                         </button>
                       )}
 
@@ -617,10 +617,9 @@ export default function Room() {
                             e.stopPropagation();
                             socket.emit('assign-word', { roomId, cardIndex: idx });
                           }}
-                          className={`absolute top-1 right-1 z-30 text-white font-black text-[8px] sm:text-[9px] px-2 py-1 rounded-full shadow-md transform transition hover:scale-110 active:scale-95 border flex items-center gap-1 ${card.type === 'red' ? 'bg-rose-500 hover:bg-rose-400 border-rose-300' : 'bg-cyan-500 hover:bg-cyan-400 border-cyan-300'}`}
+                          className={`absolute top-1 right-1 z-30 text-white font-black text-xs p-1.5 rounded-full shadow-md transform transition hover:scale-110 active:scale-95 border flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 ${card.type === 'red' ? 'bg-rose-500 hover:bg-rose-400 border-rose-300' : 'bg-cyan-500 hover:bg-cyan-400 border-cyan-300'}`}
                         >
-                          <span>🎯</span>
-                          <span>ASSIGN</span>
+                          🎯
                         </button>
                       )}
 
