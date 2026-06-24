@@ -261,5 +261,5 @@ function setupCodenamesGrid(room) {
   io.to(room.id).emit('room-update', room);
 }
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 7860;
 server.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
