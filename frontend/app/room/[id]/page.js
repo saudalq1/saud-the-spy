@@ -164,7 +164,7 @@ export default function Room() {
     return (
       <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center font-mono space-y-4">
         <div className="w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Securing satellite decryption feed...</p>
+        <p className="text-cyan-400 font-bold uppercase tracking-widest text-sm animate-pulse">Loading Game...</p>
       </div>
     );
   }
